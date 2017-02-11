@@ -2,13 +2,13 @@ import os
 import timeit
 
 
-from core.FileGenerator import FileGenerator
+from core.TempFileGenerator import TempFileGenerator
 from core.IpGenerator import IpGenerator
 
 
 class App:
     def start(self):
-        temp = FileGenerator()
+        temp = TempFileGenerator()
         temp.generate(['file1', 'file2', 'file3', 'file4', 'file5'])
 
         ipGen = IpGenerator()
