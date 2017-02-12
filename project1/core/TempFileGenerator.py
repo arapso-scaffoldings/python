@@ -50,7 +50,7 @@ if __name__ == "__main__":
     tempFolder = path.join("/tmp/python", str(uuid.uuid4()))
 
     files_no = 10
-    lines_no = 100000
+    lines_no = 1000000
 
     ''':type generator: TempFileGenerator'''
     generator = TempFileGenerator(tempFolder, uuid_generator, event_content_gen)
