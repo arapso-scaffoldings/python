@@ -1,6 +1,7 @@
 import time
 import random
 import uuid
+import json
 
 available_event_types = ["WIN", "CLICK"]
 available_campaign_ids = ["111", "222", "333", "444", "555"]
@@ -38,7 +39,7 @@ def generate_event():
             "bid": {"price": 3.183, "currency": "USD"},
             "deviceId": device_id_gen(),
             "device": {"category": device_category_gen()}}
-        return temp
+        return json.dumps(temp, separators=(",",":"))
 
 def event_content_gen(lines_no=10):
     for x in xrange(lines_no):
