@@ -17,12 +17,12 @@ parser.add_argument('--placement-group', type=str, required=False,
                         help='Name of the Placement Group (must be given if advanced networking is to be used)')
 
 parser.add_argument('--accepted-slave-instance-types', type=str, required=True,
-                        nargs="*", choices=['a', 'b', 'c'],
+                        choices=['a', 'b', 'c'],
                         help='EC2 slave machine instance types (API Name, like r2.8xlarge, for multiple types '
                              'separate names with whitespaces)')
 gs = parser.parse_args("--master-dns s "
                        "--servers-group ad --master-allocation-id ad "
                        "--slave-instances-count 2 "
-                       "--accepted-slave-instance-types a ad".split())
+                       "--accepted-slave-instance-types ".split())
 
 print gs.accepted_slave_instance_types
