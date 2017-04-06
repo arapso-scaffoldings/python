@@ -1,6 +1,7 @@
 # Filename: run_luigi.py
 import luigi
 
+
 class PrintNumbers(luigi.Task):
     n = luigi.IntParameter()
 
@@ -14,6 +15,7 @@ class PrintNumbers(luigi.Task):
         with self.output().open('w') as f:
             for i in range(1, self.n + 1):
                 f.write("{}\n".format(i))
+
 
 class SquaredNumbers(luigi.Task):
     n = luigi.IntParameter()
