@@ -2,11 +2,14 @@
 import luigi
 
 
-class PrintNumbers(luigi.Task):
-    n = luigi.IntParameter()
+class BaseConfig(luigi.Config):
+    file_prefix = luigi.Parameter(default="prefix")
+config = BaseConfig()
 
-    def requires(self):
-        return []
+
+class PrintNumbers(luigi.Task):
+    name = "numbers"
+    n = luigi.IntParameter(default=10)
 
     def output(self):
         return luigi.LocalTarget("numbers_up_to_{}.txt".format(self.n))
@@ -17,14 +20,32 @@ class PrintNumbers(luigi.Task):
                 f.write("{}\n".format(i))
 
 
+class FibonnaciNumbers(luigi.Task):
+    name = "fibonnaci"
+    n = luigi.IntParameter(default=10)
+    def output(self):
+        return luigi.LocalTarget("fibonnaci_{}.txt".format(self.n))
+
+    def run(self):
+        with self.output().open("w") as f:
+            left = 0
+            right = 1
+            for i in range(1, self.n + 1):
+                temp = right + left
+                f.write("{}\n".format(temp))
+                left = right
+                right = temp
+
+
 class SquaredNumbers(luigi.Task):
-    n = luigi.IntParameter()
+    n = luigi.IntParameter(default=10)
+    parent_task = luigi.TaskParameter(default=PrintNumbers)
 
     def requires(self):
-        return [PrintNumbers(n = self.n)]
+        return [self.clone(self.parent_task)]
 
     def output(self):
-        return luigi.LocalTarget("squares_{}.txt".format(self.n))
+        return luigi.LocalTarget("squares_{}_{}.txt".format(self.n, self.parent_task.name))
 
     def run(self):
         with self.input()[0].open() as fin, self.output().open('w') as fout:
