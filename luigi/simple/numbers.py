@@ -7,9 +7,12 @@ class BaseConfig(luigi.Config):
 config = BaseConfig()
 
 
-class PrintNumbers(luigi.Task):
-    name = "numbers"
+class NumberParameter():
     n = luigi.IntParameter(default=10)
+
+
+class PrintNumbers(luigi.Task, NumberParameter):
+    name = "numbers"
 
     def output(self):
         return luigi.LocalTarget("numbers_up_to_{}.txt".format(self.n))
@@ -20,11 +23,11 @@ class PrintNumbers(luigi.Task):
                 f.write("{}\n".format(i))
 
 
-class FibonnaciNumbers(luigi.Task):
-    name = "fibonnaci"
-    n = luigi.IntParameter(default=10)
+class FibonacciNumbers(luigi.Task, NumberParameter):
+    name = "fibonacci"
+
     def output(self):
-        return luigi.LocalTarget("fibonnaci_{}.txt".format(self.n))
+        return luigi.LocalTarget("fibonacci_{}.txt".format(self.n))
 
     def run(self):
         with self.output().open("w") as f:
@@ -37,22 +40,23 @@ class FibonnaciNumbers(luigi.Task):
                 right = temp
 
 
-class SquaredNumbers(luigi.Task):
-    n = luigi.IntParameter(default=10)
+class SquaredNumbers(luigi.Task, NumberParameter):
     parent_task = luigi.TaskParameter(default=PrintNumbers)
 
     def requires(self):
-        return [self.clone(self.parent_task)]
+        yield self.clone(self.parent_task)
 
     def output(self):
         return luigi.LocalTarget("squares_{}_{}.txt".format(self.n, self.parent_task.name))
 
     def run(self):
-        with self.input()[0].open() as fin, self.output().open('w') as fout:
-            for line in fin:
-                n = int(line.strip())
-                out = n * n
-                fout.write("{}:{}\n".format(n, out))
+        for input in self.input():
+            with input.open() as fin:
+                with self.output().open('w') as fout:
+                    for line in fin:
+                        n = int(line.strip())
+                        out = n * n
+                        fout.write("{}:{}\n".format(n, out))
 
 if __name__ == '__main__':
     luigi.run()
