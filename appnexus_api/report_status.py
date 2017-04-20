@@ -10,8 +10,10 @@ AUTH_PATH = urljoin(API_ENDPOINT, 'auth')
 
 REPORT_STATUS_PATH = urljoin(API_ENDPOINT, 'report')
 
+REPORT_META_PATH = urljoin(API_ENDPOINT, 'report')
 
-def report(api_username, api_password, report_id):
+
+def report_status(api_username, api_password, report_id):
 
     try:
         logging.info('Sending request to AppNexus API')
@@ -28,6 +30,21 @@ def report(api_username, api_password, report_id):
     except requests.exceptions.RequestException as e:
         logging.error("AppNexus API connection error")
         raise IOError('AppNexus API connection error')
+
+
+def reports_meta(api_username, api_password):
+
+    try:
+        logging.info('Sending request to AppNexus API')
+        with requests.Session() as session:
+            auth_response = session.post(AUTH_PATH, json=_auth_payload(api_username, api_password))
+            auth_response.raise_for_status()
+            _check_meta(session=session)
+    except requests.exceptions.RequestException as e:
+        logging.error("AppNexus API connection error")
+        raise IOError('AppNexus API connection error')
+
+
 
 
 def _auth_payload(username, password):
@@ -62,7 +79,7 @@ def _check_status(session, report_id):
             logging.info("Try to get report status for id: '%s'", report_id)
             status_response = session.get(REPORT_STATUS_PATH, params={'id': report_id})
             status_response.raise_for_status()
-            print status_response.json()
+            print status_response.text
             return status_response.json()['response']['execution_status'] == 'ready'
         except requests.exceptions.RequestException as e:
             logging.warn("Appnexus api response with error. Retrying...")
@@ -71,5 +88,18 @@ def _check_status(session, report_id):
     return f
 
 
+def _check_meta(session):
+    try:
+        logging.info("Try to get all reports meta")
+
+        status_response = session.get("https://api.appnexus.com/report?meta=network_device_analytics")
+        status_response.raise_for_status()
+        print status_response.text
+        return True
+    except requests.exceptions.RequestException as e:
+        logging.warn("Appnexus api response with error. Retrying...")
+        return False
+
+
 if __name__ == "__main__":
-    report("roqadapi","************ApiRoq!!!*****************", "ef942d350a56638c85c5e5ddfd1712f6")
+    reports_meta("roqadapi","ApiRoq!!!12222")
